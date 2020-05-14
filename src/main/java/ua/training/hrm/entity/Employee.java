@@ -41,7 +41,7 @@ public class Employee {
     @Size(min=5, message = "Email can't be shorter than 5 characters")
     private String email;
 
-    @Column(name = "jobFunction")
+    @Column(name = "jobFunction", nullable = false)
     @Enumerated(EnumType.STRING)
     private JobFunction jobFunction;
 

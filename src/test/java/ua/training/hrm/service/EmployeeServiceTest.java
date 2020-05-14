@@ -7,10 +7,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.DataIntegrityViolationException;
 import ua.training.hrm.entity.Employee;
+import ua.training.hrm.exception.NoEntityFoundException;
+import ua.training.hrm.exception.NonUniqueObjectException;
 import ua.training.hrm.repository.EmployeeRepository;
-import ua.training.hrm.service.exception.NoEntityFoundException;
-import ua.training.hrm.service.exception.NonUniqueObjectException;
-import ua.training.hrm.service.exception.SomethingWentWrongException;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +46,7 @@ public class EmployeeServiceTest {
     }
 
     @Test
-    public void shouldReturnEmployeeWhenFoundById() throws NoEntityFoundException {
+    public void shouldReturnEmployeeWhenFoundById() {
         when(employeeRepository.findById(ID)).thenReturn(Optional.of(employee));
 
         Employee result = instance.getEmployeeById(ID);
@@ -55,8 +54,8 @@ public class EmployeeServiceTest {
         assertThat(result).isEqualTo(employee);
     }
 
-    @Test( expected = NoEntityFoundException.class)
-    public void shouldThrowNoEntityFoundExceptionWhenNotFoundById() throws NoEntityFoundException {
+    @Test(expected = NoEntityFoundException.class)
+    public void shouldThrowNoEntityFoundExceptionWhenNotFoundById() {
 
         when(employeeRepository.findById(NON_EXISTING_ID)).thenReturn(Optional.empty());
         instance.getEmployeeById(NON_EXISTING_ID);
@@ -64,7 +63,7 @@ public class EmployeeServiceTest {
 
 
     @Test
-    public void shouldReturnEmployeeWithFieldsFromArgumentWhenCreateSuccess() throws NonUniqueObjectException, SomethingWentWrongException {
+    public void shouldReturnEmployeeWithFieldsFromArgumentWhenCreateSuccess() {
         Employee argumentOfCreate = new Employee();
         argumentOfCreate.setFirstName(NAME);
         argumentOfCreate.setLastName(NAME);
@@ -82,28 +81,15 @@ public class EmployeeServiceTest {
         assertThat(result.getLastName()).isEqualTo(argumentOfCreate.getLastName());
     }
 
-    @Test (expected = NonUniqueObjectException.class)
-    public void shouldThrowNonUniqueObjectExceptionWhenCreateDuplicate() throws NonUniqueObjectException, SomethingWentWrongException {
+    @Test(expected = NonUniqueObjectException.class)
+    public void shouldThrowNonUniqueObjectExceptionWhenCreateDuplicate() {
         when(employeeRepository.save(any(Employee.class))).thenThrow(new DataIntegrityViolationException("constraint violation"));
         instance.create(employee);
     }
 
-    @Test (expected = SomethingWentWrongException.class)
-    public void shouldThrowSomethingWentWrongExceptionWhenCreateFailedForUnpredictableReason() throws NonUniqueObjectException, SomethingWentWrongException {
-        when(employeeRepository.save(any(Employee.class))).thenThrow(new RuntimeException());
-        instance.create(employee);
-    }
-
-    @Test (expected = SomethingWentWrongException.class)
-    public void shouldThrowSomethingWentWrongExceptionWhenRepositoryReturnedEntityWithoutId() throws NonUniqueObjectException, SomethingWentWrongException {
-        Employee employeeWithoutId = new Employee();
-
-        when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithoutId);
-        instance.create(employeeWithoutId);
-    }
 
     @Test
-    public void shouldReturnEmployeeWithFieldsFromArgumentWhenEditSuccess() throws NonUniqueObjectException, SomethingWentWrongException {
+    public void shouldReturnEmployeeWithFieldsFromArgumentWhenEditSuccess() {
         Employee argumentOfEdit = new Employee();
         argumentOfEdit.setId(ID);
         argumentOfEdit.setFirstName(NAME);
@@ -123,26 +109,20 @@ public class EmployeeServiceTest {
         assertThat(result.getLastName()).isEqualTo(argumentOfEdit.getLastName());
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void shouldThrowIllegalArgumentExceptionWhenEditWithoutId() throws NonUniqueObjectException, SomethingWentWrongException {
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIllegalArgumentExceptionWhenEditWithoutId() {
         Employee employeeWithoutId = new Employee();
         instance.edit(employeeWithoutId);
     }
 
-    @Test (expected = NonUniqueObjectException.class)
-    public void shouldThrowNonUniqueObjectExceptionWhenEditCreatesDuplicate() throws NonUniqueObjectException, SomethingWentWrongException {
+    @Test(expected = NonUniqueObjectException.class)
+    public void shouldThrowNonUniqueObjectExceptionWhenEditCreatesDuplicate() {
         when(employeeRepository.save(any(Employee.class))).thenThrow(new DataIntegrityViolationException("constraint violation"));
         instance.edit(employee);
     }
 
-    @Test (expected = SomethingWentWrongException.class)
-    public void shouldThrowSomethingWentWrongExceptionWhenEditFailedForUnpredictableReason() throws NonUniqueObjectException, SomethingWentWrongException {
-        when(employeeRepository.save(any(Employee.class))).thenThrow(new RuntimeException());
-        instance.edit(employee);
-    }
-
     @Test
-    public void shouldCallDeleteByIdFromRepositoryWhenIdExists(){
+    public void shouldCallDeleteByIdFromRepositoryWhenIdExists() {
         when(employeeRepository.existsById(ID)).thenReturn(true);
 
         instance.deleteEmployee(ID);
@@ -151,7 +131,7 @@ public class EmployeeServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenIdNotExist(){
+    public void shouldReturnTrueWhenIdNotExist() {
         when(employeeRepository.existsById(ID)).thenReturn(false);
 
         Boolean result = instance.deleteEmployee(ID);

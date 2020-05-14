@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import ua.training.hrm.entity.Employee;
 import ua.training.hrm.service.EmployeeService;
-import ua.training.hrm.service.exception.NonUniqueObjectException;
+import ua.training.hrm.exception.NonUniqueObjectException;
 
 import java.util.Arrays;
 import java.util.List;

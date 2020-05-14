@@ -10,12 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import ua.training.hrm.entity.Employee;
 import ua.training.hrm.service.EmployeeService;
-import ua.training.hrm.service.exception.NoEntityFoundException;
-import ua.training.hrm.service.exception.NonUniqueObjectException;
-import ua.training.hrm.service.exception.SomethingWentWrongException;
 
 import java.util.List;
 
@@ -28,54 +24,30 @@ public class EmployeeController {
 
     @GetMapping("/employees")
     public List<Employee> showAllEmployeesList() {
-
         return employeeService.getAllEmployees();
     }
 
-
     @PostMapping("/employees")
     public Employee addEmployee(@RequestBody Employee newEmployee) {
-
-        try {
-            return employeeService.create(newEmployee);
-
-        } catch (NonUniqueObjectException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }catch (SomethingWentWrongException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
-        }
+        return employeeService.create(newEmployee);
     }
 
     @GetMapping("/employees/{id}")
     public Employee showOneEmployee(@PathVariable Long id) {
-        try {
-            return employeeService.getEmployeeById(id);
-
-        } catch (NoEntityFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        return employeeService.getEmployeeById(id);
     }
-
 
     @PutMapping("/employees/{id}")
     public Employee editEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
-
         newEmployee.setId(id);
-        try {
-            return employeeService.edit(newEmployee);
-
-        } catch (NonUniqueObjectException|IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (SomethingWentWrongException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
-        }
+        return employeeService.edit(newEmployee);
     }
 
     @DeleteMapping("/employees/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         boolean wasDeleted = employeeService.deleteEmployee(id);
 
-        if(wasDeleted)
+        if (wasDeleted)
             return ResponseEntity.noContent().build();
         else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
