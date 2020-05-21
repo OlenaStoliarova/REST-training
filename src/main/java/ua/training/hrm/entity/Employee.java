@@ -25,7 +25,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 
 @Entity
-@Table( name="employee", uniqueConstraints={@UniqueConstraint(columnNames={"firstName", "lastName"})})
+@Table(name = "employee", uniqueConstraints = {@UniqueConstraint(columnNames = {"firstName", "lastName"})})
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,7 @@ public class Employee {
     private String lastName;
 
     @Column(name = "email", nullable = false)
-    @Size(min=5, message = "Email can't be shorter than 5 characters")
+    @Size(min = 5, message = "Email can't be shorter than 5 characters")
     private String email;
 
     @Column(name = "jobFunction", nullable = false)

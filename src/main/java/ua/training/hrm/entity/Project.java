@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 
 @Entity
-@Table( name="project", uniqueConstraints={@UniqueConstraint(columnNames={"name"})})
+@Table(name = "project", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class Project {
     private Long id;
 
     @Column(name = "name", nullable = false)
-    @Size(min=3, message = "Project name can't be shorter than 3 characters")
+    @Size(min = 3, message = "Project name can't be shorter than 3 characters")
     private String name;
 
 }

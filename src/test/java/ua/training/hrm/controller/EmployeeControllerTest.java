@@ -10,8 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import ua.training.hrm.entity.Employee;
-import ua.training.hrm.service.EmployeeService;
 import ua.training.hrm.exception.NonUniqueObjectException;
+import ua.training.hrm.service.EmployeeService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,8 +56,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void createEmployeeOk() throws Exception
-    {
+    public void createEmployeeOk() throws Exception {
         Employee newEmployee = new Employee();
         newEmployee.setFirstName("Vasiliy");
         newEmployee.setLastName("Bubkin");
@@ -66,11 +65,11 @@ public class EmployeeControllerTest {
         createdEmployee.setId(ID);
 
         String newEmployeeJson = "{\"firstName\":\"Vasiliy\"," +
-                                    "\"lastName\":\"Bubkin\"}}";
+                "\"lastName\":\"Bubkin\"}}";
 
         when(service.create(newEmployee)).thenReturn(createdEmployee);
 
-        mvc.perform( post("/employees")
+        mvc.perform(post("/employees")
                 .content(newEmployeeJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -85,7 +84,7 @@ public class EmployeeControllerTest {
         String newEmployeeJson = "{\"firstName\":\"Vasiliy\"," +
                 "\"lastName\":\"Bubkin\"}}";
 
-        mvc.perform( post("/employees")
+        mvc.perform(post("/employees")
                 .content(newEmployeeJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))

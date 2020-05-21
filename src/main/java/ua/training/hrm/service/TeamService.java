@@ -35,7 +35,7 @@ public class TeamService {
     public Team edit(Team teamUpdate) {
         Optional<Team> team = teamRepository.findById(teamUpdate.getId());
 
-        if (team.isPresent()){
+        if (team.isPresent()) {
             Team t = team.get();
             copyUpdatedFields(teamUpdate, t);
             return teamRepository.save(t);

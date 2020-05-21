@@ -25,7 +25,7 @@ import java.util.Set;
 @NoArgsConstructor
 
 @Entity
-@Table( name="team", uniqueConstraints={@UniqueConstraint(columnNames={"projectId", "name"})})
+@Table(name = "team", uniqueConstraints = {@UniqueConstraint(columnNames = {"projectId", "name"})})
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
