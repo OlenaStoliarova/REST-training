@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ua.training.hrm.entity.Employee;
 import ua.training.hrm.service.EmployeeService;
@@ -16,34 +17,35 @@ import ua.training.hrm.service.EmployeeService;
 import java.util.List;
 
 @RestController
+@RequestMapping("/employees")
 public class EmployeeController {
 
     @Autowired
     EmployeeService employeeService;
 
 
-    @GetMapping("/employees")
+    @GetMapping
     public List<Employee> showAllEmployeesList() {
         return employeeService.getAllEmployees();
     }
 
-    @PostMapping("/employees")
+    @PostMapping
     public Employee addEmployee(@RequestBody Employee newEmployee) {
         return employeeService.create(newEmployee);
     }
 
-    @GetMapping("/employees/{id}")
+    @GetMapping("/{id}")
     public Employee showOneEmployee(@PathVariable Long id) {
         return employeeService.getEmployeeById(id);
     }
 
-    @PutMapping("/employees/{id}")
+    @PutMapping("/{id}")
     public Employee editEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
         newEmployee.setId(id);
         return employeeService.edit(newEmployee);
     }
 
-    @DeleteMapping("/employees/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         boolean wasDeleted = employeeService.deleteEmployee(id);
 
