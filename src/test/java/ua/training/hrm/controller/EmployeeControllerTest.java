@@ -1,93 +1,124 @@
 package ua.training.hrm.controller;
 
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ua.training.hrm.entity.Employee;
 import ua.training.hrm.exception.NonUniqueObjectException;
 import ua.training.hrm.service.EmployeeService;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@WebMvcTest(EmployeeController.class)
+
+@RunWith(MockitoJUnitRunner.class)
 public class EmployeeControllerTest {
 
     private static final Long ID = 1L;
-    private static final Long NON_EXISTING_ID = 0L;
     private static final String NAME = "Name";
 
-    @Autowired
-    private MockMvc mvc;
+    @InjectMocks
+    private EmployeeController instance;
 
-    @MockBean
-    private EmployeeService service;
+    @Mock
+    private EmployeeService employeeService;
+    @Mock
+    private Employee employee;
 
     @Test
-    public void getAllShouldReturnJsonArray() throws Exception {
+    public void showAllEmployeesListShouldReturnAllEmployeesList() {
+        when(employeeService.getAllEmployees()).thenReturn(Collections.singletonList(employee));
 
-        Employee employee = new Employee();
-        employee.setFirstName(NAME);
-        List<Employee> allEmployees = Arrays.asList(employee);
+        List<Employee> result = instance.showAllEmployeesList();
 
-        when(service.getAllEmployees()).thenReturn(allEmployees);
+        verify(employeeService, times(1)).getAllEmployees();
+        assertThat(result).contains(employee);
+    }
 
-        mvc.perform(get("/employees")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].firstName", is(employee.getFirstName())));
+
+    @Test
+    public void addEmployeeShouldReturnEmployeeWithFieldsFromArgumentWhenCreateSuccess() {
+        Employee argumentOfCreate = new Employee();
+        argumentOfCreate.setFirstName(NAME);
+        argumentOfCreate.setLastName(NAME);
+
+        Employee expectedResult = new Employee();
+        expectedResult.setId(ID);
+        expectedResult.setFirstName(NAME);
+        expectedResult.setLastName(NAME);
+
+        when(employeeService.create(argumentOfCreate)).thenReturn(expectedResult);
+
+        Employee result = instance.addEmployee(argumentOfCreate);
+
+        verify(employeeService, times(1)).create(argumentOfCreate);
+        assertThat(result.getFirstName()).isEqualTo(argumentOfCreate.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(argumentOfCreate.getLastName());
+    }
+
+    @Test(expected = NonUniqueObjectException.class)
+    public void addEmployeeShouldThrowNonUniqueObjectExceptionWhenCreateDuplicate() {
+        when(employeeService.create(any(Employee.class))).thenThrow(new NonUniqueObjectException("Employee with such name already exists."));
+        instance.addEmployee(employee);
     }
 
     @Test
-    public void createEmployeeOk() throws Exception {
-        Employee newEmployee = new Employee();
-        newEmployee.setFirstName("Vasiliy");
-        newEmployee.setLastName("Bubkin");
+    public void showOneEmployeeShouldReturnEmployee() {
+        when(employeeService.getEmployeeById(ID)).thenReturn(employee);
 
-        Employee createdEmployee = new Employee();
-        createdEmployee.setId(ID);
+        Employee result = instance.showOneEmployee(ID);
 
-        String newEmployeeJson = "{\"firstName\":\"Vasiliy\"," +
-                "\"lastName\":\"Bubkin\"}}";
-
-        when(service.create(newEmployee)).thenReturn(createdEmployee);
-
-        mvc.perform(post("/employees")
-                .content(newEmployeeJson)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists());
+        verify(employeeService, times(1)).getEmployeeById(ID);
+        assertThat(result).isEqualTo(employee);
     }
 
     @Test
-    public void shouldReturnBadRequestWhenCreatingDuplicate() throws Exception {
-        when(service.create(any(Employee.class))).thenThrow(new NonUniqueObjectException("Employee with such name already exists."));
+    public void editEmployeeShouldReturnEmployeeWithFieldsFromArgumentWhenEditSuccess() {
+        Employee argumentOfEdit = new Employee();
+        argumentOfEdit.setId(ID);
+        argumentOfEdit.setFirstName(NAME);
+        argumentOfEdit.setLastName(NAME);
 
-        String newEmployeeJson = "{\"firstName\":\"Vasiliy\"," +
-                "\"lastName\":\"Bubkin\"}}";
+        Employee expectedResult = new Employee();
+        expectedResult.setId(ID);
+        expectedResult.setFirstName(NAME);
+        expectedResult.setLastName(NAME);
 
-        mvc.perform(post("/employees")
-                .content(newEmployeeJson)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+        when(employeeService.edit(argumentOfEdit)).thenReturn(expectedResult);
+
+        Employee result = instance.editEmployee(argumentOfEdit, ID);
+
+        verify(employeeService, times(1)).edit(argumentOfEdit);
+        assertThat(result.getId()).isEqualTo(argumentOfEdit.getId());
+        assertThat(result.getFirstName()).isEqualTo(argumentOfEdit.getFirstName());
+        assertThat(result.getLastName()).isEqualTo(argumentOfEdit.getLastName());
+    }
+
+    @Test
+    public void shouldDeleteEmployee() {
+        when(employeeService.deleteEmployee(ID)).thenReturn(true);
+
+        instance.deleteEmployee(ID);
+        verify(employeeService, times(1)).deleteEmployee(ID);
+    }
+
+    @Test
+    public void shouldReturnErrorCodeWhenDeleteFailed() {
+        when(employeeService.deleteEmployee(ID)).thenReturn(false);
+
+        ResponseEntity<Void> result = instance.deleteEmployee(ID);
+
+        verify(employeeService, times(1)).deleteEmployee(ID);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
